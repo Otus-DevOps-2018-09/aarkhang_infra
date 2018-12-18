@@ -7,7 +7,7 @@
     mongo_bind_ip: 10.166.0.2
   tasks:
     - name: Change mongo config file
-      template: 
+      template:
         src: templates/mongod.conf.j2
         dest: /etc/mongod.conf
         mode: 0644
@@ -16,7 +16,7 @@
   handlers:
   - name: restart mongod
     systemd: name=mongod state=restarted
-    
+
 - name: Configure application
   hosts: app
   tags: app-tag
@@ -31,7 +31,7 @@
       notify: reload puma
 
     - name: Add config file for DB connection
-      template: 
+      template:
         src: templates/db_config.j2
         dest: /home/appuser/db_config
         owner: appuser
@@ -39,7 +39,7 @@
 
     - name: enable Puma
       systemd: name=puma enabled=yes
-      
+
   handlers:
   - name: reload puma
     systemd: name=puma state=restarted
@@ -54,7 +54,7 @@
         dest: /home/appuser/reddit
         version: monolith
       notify: restart puma
-    
+
     - name: Bundle install
       bundler:
         state: present

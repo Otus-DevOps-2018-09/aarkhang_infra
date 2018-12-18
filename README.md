@@ -4,6 +4,57 @@ aarkhang_infra
 
 Otus DevOps 2018-09 Infrastructure repository.
 
+Домашнее задание #10    Ansible-3
+----------------------------------
+### Что сделано
+1. На основе плейбука ansible/db.yml создана роль ansible/roles/db
+2. На основе плейбука ansible/app.yml создана роль ansible/roles/app
+3. Плейбуки app.yml и db.yml изменены для использования созданных ролей
+4. Проверена работа плейбука ansible/site.yml в инфраструктурах stage и prod.
+5. Созданы окружения stage и prod для вызова плейбуков Ansible, для их настройки созданы групповые переменные.
+6. В роли app и db добавлена задача по выводу названия окружения, в котором находится конфигурируемый хост.
+7. Реорганизована структура каталога ansible.
+8. Проверена работа плейбука ansible/playbooks/site.yml в окружениях stage и prod.
+9. В плейбук ansible/playbooks/app.yml добавлен вызов коммьюнити-роли jdauphant.nginx.
+10. С помощью nginx настроено обратное проксирование для нашего приложения и проверена его доступность на 80-ом порту.
+11. Создан плейбук ansible/playbooks/users.yml, использующий файл с логинами и паролями пользователей ansible/environments/<окружение>/credentials.yml.
+12. Создан секретный ключ ~/.ansible/vault.key и с помощью утилиты ansible-vault файлы credentials.yml зашифрованы.
+13. Вызов плейбука users.yml добавлен в site.yml и проверена его работа в окружениях stage и prod.
+14. Доработан скрипт dyninventory.py, созданный в ДЗ-9, для возможности его использования одновременно в двух окружениях.
+15. Созданы скрипты inventory.sh для использование в качестве динамического инвентори для окружений stage и prod.
+16. По подсказке И.Косолапова самописные скрипты динамического инвентори заменены на использование плагина gcp_compute:
+  - в файлы terraform/modules/{app,db}/main.tf добавлены labels
+  - созданы файлы динамических инвентори ansible/environments/{prod,stage}/inventory.gcp.yml
+  - откорректироаны файлы ansible/environments/{prod,stage}/group_vars/app для получения IP-адреса db_host
+  - в конфигурационном файле ansible.cfg изменено inventory по-умолчанию
+17. Также попробовал использовать в качестве динамического инвентори terraform-inventory, из-за чего закомитил файл  ansible/environments/stage/tfinventory.sh. Оно тоже работает, но преимуществ перед gcp_compute я не увмдел.
+18. С помощью trytravis настроены тесты Travis CI для проверки валидности шаблонов Packer, Terraform и синтаксиса плейбуков Ansible.
+
+### Как запустить проект
+- Клонировать репозиторий
+- Построить с помощью packer образы ВМ, как описано в домашнем задании #9
+- Запустить параллельно окружения stage и prod, как описано в домашнем задании  #7
+- Закомментировать вызов плейбука users.yml в ansible/playbooks/site.yml либо создать собственный секретный ключ и пересоздать и зашифровать им собственные версии файлов credentials.yml.
+- Перейти в каталог ansible и выполнить команды
+
+```sh
+$ ansible-playbook playbooks/site.yml
+$ ansible-playbook -i environments/prod/inventory.gcp.yml  playbooks/site.yml
+```
+
+### Как проверить работоспособность приложения
+Определить внешние адреса запущенных инстансов, например выпонив команду:
+```
+arh@zalman:/home/my/projects/otus/aarkhang_infra/ansible$ gcloud compute instances list
+NAME          ZONE             MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP    STATUS
+reddit-app-s  europe-north1-b  f1-micro                   10.166.0.3   35.228.9.114   RUNNING
+reddit-db-s   europe-north1-b  f1-micro                   10.166.0.2   35.228.241.58  RUNNING
+reddit-app    europe-west4-a   f1-micro                   10.164.0.3   35.204.35.210  RUNNING
+reddit-db     europe-west4-a   f1-micro                   10.164.0.2   35.204.30.1    RUNNING
+```
+Перейти по ссылкам http://<reddit-app-external_ip> и http://<reddit-app-s-external_ip>
+
+
 Домашнее задание #9    Ansible-2
 ----------------------------------
 ### Что сделано

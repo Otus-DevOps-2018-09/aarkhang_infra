@@ -3,6 +3,11 @@ resource "google_compute_instance" "app" {
   machine_type = "${var.machine_type}"
   zone         = "${var.zone}"
 
+  labels = {
+    environment = "${var.env_name}"
+    inventory_group  = "app"
+  }
+
   # определение загрузочного диска
   boot_disk {
     initialize_params {
@@ -58,7 +63,7 @@ resource "google_compute_firewall" "firewall_puma" {
   # Какой доступ разрешить
   allow {
     protocol = "tcp"
-    ports    = ["9292"]
+    ports    = ["80"]
   }
 
   # Каким адресам разрешаем доступ

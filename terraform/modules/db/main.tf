@@ -3,6 +3,11 @@ resource "google_compute_instance" "db" {
   machine_type = "${var.machine_type}"
   zone         = "${var.zone}"
 
+  labels = {
+    environment = "${var.env_name}"
+    inventory_group  = "db"
+  }
+
   # определение загрузочного диска
   boot_disk {
     initialize_params {

@@ -8,3 +8,9 @@ packer/upload
 .terraform/
 *.pyc
 *.retry
+jdauphant.nginx
+vault.key
+venv
+*.log
+.yamllint
+.vagrant

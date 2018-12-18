@@ -7,13 +7,14 @@
 import subprocess
 import sys
 import json
+import argparse
 
 # global dictionaries
 hostvars = {}
 envgrp = {}
 grpvars = {}
 
-def make_group(basename):
+def make_group(basename, only_env):
     """Функция принимает базовое имя, возвращает список найденных инстансов 
     и добавляет их IP-адреса в словарь hostvars"""
     group = []
@@ -26,6 +27,8 @@ def make_group(basename):
     p = subprocess.Popen( gcil % (','.join(props), basename), shell=True, stdout=subprocess.PIPE)
     for line in p.stdout:
         name, addr, intip, env = line.split()
+        if only_env != '' and env != only_env:
+            continue
         hostvars[name] = { "ansible_host" : addr,
                            "internal_ip" : intip }
         group.append(name)
@@ -40,11 +43,16 @@ def make_group(basename):
         
 def main(args):
     """ Создание динамического inventory"""
-    if len(args) != 2 or args[1] != "--list":
-        sys.stderr.write("Usage: python %s --list\n" % args[0])
+    p = argparse.ArgumentParser()
+    p.add_argument("--limit", help="limit inventory to specific environment", action="store", dest="env")
+    p.add_argument("--list", help="output JSON inventory", action="store_true", dest="printlist")
+    opts = p.parse_args()
+    if not opts.printlist:
+        p.print_help()
         return 1
-    app = make_group("reddit-app")
-    db  = make_group("reddit-db")
+    only_env = str(opts.env or '')
+    app = make_group("reddit-app", only_env)
+    db  = make_group("reddit-db", only_env)
     appvars = {}
     dbvars  = {}
     

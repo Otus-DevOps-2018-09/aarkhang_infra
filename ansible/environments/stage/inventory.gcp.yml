@@ -1,0 +1,16 @@
+plugin: gcp_compute
+strict: true
+projects:
+  - infra-219311
+filters:
+  - labels.environment = stage
+hostnames:
+  - name
+keyed_groups:
+  - key: labels.inventory_group
+    prefix: ""
+    separator: ""
+auth_kind: serviceaccount
+service_account_file: ~/.ansible/infra-6ebfed9a89f5.json
+compose:
+  ansible_host: networkInterfaces[0].accessConfigs[0].natIP

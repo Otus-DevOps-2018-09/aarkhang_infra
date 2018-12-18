@@ -1,0 +1,14 @@
+all:
+  children:
+    app:
+      hosts:
+        reddit-app-s:
+          ansible_host: 35.204.211.226
+          dbserver: reddit-db-s
+          internal_ip: 10.164.0.3
+    db:
+      hosts:
+        reddit-db-s:
+          ansible_host: 35.204.151.49
+          internal_ip: 10.164.0.2
+    ungrouped: {}

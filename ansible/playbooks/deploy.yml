@@ -9,7 +9,7 @@
         dest: /home/appuser/reddit
         version: monolith
       notify: restart puma
-    
+
     - name: Bundle install
       bundler:
         state: present

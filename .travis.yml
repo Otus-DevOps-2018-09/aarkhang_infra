@@ -1,9 +1,60 @@
 dist: trusty
 sudo: required
 language: bash
+
+env:
+  global:
+    - tf_ver: 0.11.10
+    - tf_zip: terraform_${tf_ver}_linux_amd64.zip
+
 before_install:
-- curl https://raw.githubusercontent.com/express42/otus-homeworks/2018-09/run.sh |
-  bash
+  - curl https://raw.githubusercontent.com/express42/otus-homeworks/2018-09/run.sh |
+    bash
+
+install:
+  - pip install --user -r ansible/requirements.txt
+  - curl -O  https://releases.hashicorp.com/terraform/$tf_ver/$tf_zip
+  - sudo unzip $tf_zip -d /usr/local/bin
+  - curl -L -O https://github.com/wata727/tflint/releases/download/v0.7.2/tflint_linux_amd64.zip
+  - sudo unzip tflint_linux_amd64.zip -d /usr/local/bin
+
+script:
+  # Packer validate
+  - |
+    for img in app db
+    do
+      packer validate --var-file packer/variables.json.example packer/${img}.json
+    done
+
+  # Terraform validate
+  - cd terraform
+  - |
+    for env in stage prod
+    do
+      cd $env
+      terraform init -backend=false
+      terraform validate -check-variables=false
+      cd ..
+    done
+
+  # Terraform tflint
+  - |
+    for env in stage prod
+    do
+      cd $env
+      tflint
+      cd ..
+    done
+
+  # Ansible syntax check
+  - cd ../ansible
+  - mkdir -p ~/.ansible && echo "test-password" > ~/.ansible/vault.key
+  - ansible-playbook playbooks/site.yml --syntax-check
+
+  # Ansible lint
+  - ansible-lint playbooks/*.yml  --exclude=roles/jdauphant.nginx
+
+
 notifications:
   slack:
     rooms:
