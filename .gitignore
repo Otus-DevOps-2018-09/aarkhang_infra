@@ -20,5 +20,5 @@ venv
 # Vagrant
 .vagrant
 # External roles
-ansible/roles/db
+ansible/roles/aarkhang.db
 ansible/roles/jdauphant.nginx
