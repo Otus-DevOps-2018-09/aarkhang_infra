@@ -1,0 +1,2 @@
+Directory ansible/roles/db/molecule should exist to pass Otus test.
+Role db renamed to aarkhang.db and live in ansible/roles/aarkhang.db.

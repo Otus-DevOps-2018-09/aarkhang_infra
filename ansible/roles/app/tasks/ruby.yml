@@ -1,0 +1,6 @@
+---
+- name: Install ruby and rubygems and required packages
+  apt:
+    pkg: "{{ packages }}"
+    state: present
+  tags: ruby
